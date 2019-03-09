@@ -13,12 +13,13 @@ class Response
     protected $type;
     protected $success = false;
     protected $errors = [];
+    protected $data = [];
 
     public function __construct(Request $request)
     {
         $this->type = $request->getContentType();
     }
-    public function setSuccess(Boolean $success): self
+    public function setSuccess(bool $success): self
     {
         $this->success = $success;
         return $this;
@@ -30,12 +31,19 @@ class Response
         return $this;
     }
 
-    public function get(): string
+    public function addData(String $name, String $data): self
+    {
+        $this->data[$name] = $data;
+        return $this;
+    }
+
+    public function build(): string
     {
         header('Content-Type: application/json');
 
         $data['success'] = $this->success;
         $data['errors'] = $this->errors;
+        $data['data'] = $this->data;
 
         if ($this->type === 'application/json'){
 

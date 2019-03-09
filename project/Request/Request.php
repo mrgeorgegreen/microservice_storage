@@ -2,6 +2,7 @@
 namespace App\Request;
 
 use App\Formats\CodeJson;
+use App\Formats\CodeXml;
 
 class Request
 {
@@ -9,6 +10,7 @@ class Request
     protected $content;
     protected $contentType;
     protected $parameters = [];
+    protected $method;
 
     function __construct()
     {
@@ -16,17 +18,30 @@ class Request
         $this->content = file_get_contents('php://input');
         $this->contentType = $_SERVER['CONTENT_TYPE'];
 
+        $body = [];
         if ($this->contentType === 'application/json') {
-            $this->parameters = CodeJson::decode($this->content);
+            $body = CodeJson::decode($this->content);
         } elseif ($this->contentType === 'application/xml') {
-//            $this->parameters = codeJson::decode($this->content);
+            $body = codeXml::decode($this->content);
         }
 
+        $this->method = $body['method'] ?? '';
+        $this->parameters = $body['params'] ?? [];
     }
 
     public function getType(): string
     {
         return $this->type;
+    }
+
+    public function getContentType(): string
+    {
+        return $this->contentType;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
     }
 
     public function getParameters(): array
@@ -37,10 +52,5 @@ class Request
     public function getParameter(string $name)
     {
         return $this->parameters[$name] ?? null;
-    }
-
-    public function getContentType(): string
-    {
-        return $this->contentType;
     }
 }

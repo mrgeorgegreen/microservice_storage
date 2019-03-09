@@ -28,4 +28,4 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN chown www-data /var/www/html/storage/
 RUN chmod 755 /var/www/html/storage/
 
-#RUN composer --version
+RUN composer update

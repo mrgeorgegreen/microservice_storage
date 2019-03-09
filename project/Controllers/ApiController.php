@@ -3,42 +3,58 @@
 
 namespace App\Controllers;
 
-
-use App\Request\ApiRequest;
+use App\FileManager\File;
 use App\Request\Request;
 use App\Response\Response;
 
 class ApiController
 {
-    /** @var ApiRequest */
-    protected $apiRequest;
+    const ROOT_PATH = '/var/www/html/storage/';
+
+    /** @var Request */
+    protected $request;
     /** @var Response */
     protected $response;
 
-    public function __construct(ApiRequest $apiRequest, Response $response)
+    public function __construct(Request $request, Response $response)
     {
-        $this->apiRequest = $apiRequest;
+        $this->request = $request;
         $this->response = $response;
     }
 
     public function handled(): string
     {
-        $method = $this->apiRequest->getMethod();
+        $method = $this->request->getMethod();
 
-        if (!method_exists(self::class, $method)){
-            return $this->response->addErrors('Wrong Method')->get();
+        if (!method_exists(self::class, $method)) {
+            return $this->response->addErrors('Wrong Method')->build();
         }
 
-        $this->$method();
+        if (!$this->$method()) {
+            return $this->response->addErrors('Can`t do operation.')->build();
+        }
 
-        return $this->response->get();
+        return $this->response
+            ->setSuccess(true)
+            ->build();
     }
 
     private function store()
     {
-        file_put_contents(
-            ('/var/www/html/storage/' . $this->apiRequest->getParameter('name')) ,
-            $this->apiRequest->getParameter('file')
+        return (new File())->put(
+            self::ROOT_PATH . $this->request->getParameter('name'),
+            $this->request->getParameter('file')
         );
+    }
+
+    private function download()
+    {
+        $file = (new File())->get(
+            self::ROOT_PATH . $this->request->getParameter('name')
+        );
+
+        $this->response->addData('file', $file);
+
+        return (bool)$file;
     }
 }
