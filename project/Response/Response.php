@@ -6,7 +6,6 @@ namespace App\Response;
 
 use App\Formats\CodeJson;
 use App\Request\Request;
-use phpDocumentor\Reflection\Types\Boolean;
 
 class Response
 {
@@ -31,7 +30,7 @@ class Response
         return $this;
     }
 
-    public function addData(String $name, String $data): self
+    public function addData(String $name, $data): self
     {
         $this->data[$name] = $data;
         return $this;

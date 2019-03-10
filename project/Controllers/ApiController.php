@@ -4,6 +4,7 @@
 namespace App\Controllers;
 
 use App\FileManager\File;
+use App\FileManager\FilesList;
 use App\Request\Request;
 use App\Response\Response;
 
@@ -56,5 +57,25 @@ class ApiController
         $this->response->addData('file', $file);
 
         return (bool)$file;
+    }
+
+    private function delete()
+    {
+        return (new File())->unlink(
+            self::ROOT_PATH . $this->request->getParameter('name')
+        );
+    }
+
+    private function list()
+    {
+        $list = (new FilesList())
+            ->getList(
+                self::ROOT_PATH
+            );
+
+
+        $this->response->addData('files', $list);
+
+        return (bool)$list;
     }
 }
